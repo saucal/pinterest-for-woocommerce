@@ -628,6 +628,13 @@ class ProductSync {
 			)
 		);
 
+		// Do not sync out of stock products if woocommerce_hide_out_of_stock_items is set.
+		if ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) ) {
+			$products_query_args['stock_status'] = 'instock';
+		}
+
+		$product_ids = wc_get_products( $products_query_args );
+
 		if ( empty( $product_ids ) ) {
 			return array();
 		}
