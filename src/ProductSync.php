@@ -621,10 +621,11 @@ class ProductSync {
 
 		$product_ids = wc_get_products(
 			array(
-				'limit'  => -1,
-				'return' => 'ids',
-				'status' => 'publish',
-				'type'   => array_diff( array_merge( array_keys( wc_get_product_types() ) ), $excluded_product_types ),
+				'limit'      => -1,
+				'return'     => 'ids',
+				'status'     => 'publish',
+				'visibility' => 'catalog',
+				'type'       => array_diff( array_merge( array_keys( wc_get_product_types() ) ), $excluded_product_types ),
 			)
 		);
 
