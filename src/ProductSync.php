@@ -115,6 +115,11 @@ class ProductSync {
 				add_action( 'woocommerce_product_set_stock_status', array( __CLASS__, 'mark_feed_dirty' ), 10, 1 );
 			}
 
+			/**
+			 * Mark feed as needing re-generation on changes to the woocommerce_hide_out_of_stock_items setting
+			 */
+			add_filter( 'woocommerce_admin_settings_sanitize_option_woocommerce_hide_out_of_stock_items', array( __CLASS__, 'mark_feed_dirty_on_woocommerce_setting_change' ), 10, 2 );
+
 			// If feed is dirty on completion of feed generation, reschedule it.
 			add_action( 'pinterest_for_woocommerce_feed_generated', array( __CLASS__, 'reschedule_if_dirty' ) );
 
@@ -677,6 +682,31 @@ class ProductSync {
 		}
 
 		Pinterest_For_Woocommerce()::save_data( 'feed_dirty', true );
+	}
+
+	/**
+	 * Mark feed as dirty if the woocommerce setting changed the value
+	 *
+	 * @param mixed $value  The new value of the woocommerce setting.
+	 * @param array $option The option details.
+	 *
+	 * @return mixed $value
+	 */
+	public static function mark_feed_dirty_on_woocommerce_setting_change( $value, $option ) {
+		if ( strstr( $option['id'], '[' ) ) {
+			parse_str( $option['id'], $option_name_array );
+			$option_name = current( array_keys( $option_name_array ) );
+		} else {
+			$option_name = $option['id'];
+		}
+
+		$old_value = get_option( $option_name );
+
+		if ( $old_value !== $value ) {
+			Pinterest_For_Woocommerce()::save_data( 'feed_dirty', true );
+		}
+
+		return $value;
 	}
 
 
